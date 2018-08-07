@@ -1,0 +1,48 @@
+{
+  "name": "fcpro",
+  "version": "1.7.3",
+  "license": "MIT",
+  "scripts": {
+    "ng": "ng",
+    "start": "ng serve --proxy-config proxy.config.json --host=0.0.0.0 --port=4210",
+    "build": "ng build --prod",
+    "test": "ng test",
+    "lint": "ng lint",
+    "e2e": "ng e2e",
+    "prod": "node --max-old-space-size=8000 ./node_modules/@angular/cli/bin/ng build --prod --aot --no-extract-license"
+  },
+  "private": true,
+  "dependencies": {
+    "@grapecity/spread-excelio": "^11.1.2",
+    "@grapecity/spread-sheets": "^11.1.2",
+    "@grapecity/spread-sheets-angular": "^11.1.2",
+    "@grapecity/spread-sheets-charts": "^11.1.2",
+    "@grapecity/spread-sheets-pdf": "^11.1.2",
+    "@grapecity/spread-sheets-print": "^11.1.2",
+    "@grapecity/spread-sheets-resources-zh": "^11.1.2",
+    "fccomponent": "^0.6.43"
+  },
+  "devDependencies": {
+    "@angular/cli": "1.6.7",
+    "@angular/compiler": "^5.2.9",
+    "@angular/compiler-cli": "^5.1.0",
+    "@angular/language-service": "^5.1.0",
+    "@types/jasmine": "~2.8.3",
+    "@types/jasminewd2": "~2.0.2",
+    "@types/node": "~6.0.60",
+    "ajv": "^6.5.0",
+    "codelyzer": "^4.0.1",
+    "jasmine-core": "~2.8.0",
+    "jasmine-spec-reporter": "~4.2.1",
+    "karma": "~2.0.0",
+    "karma-chrome-launcher": "~2.2.0",
+    "karma-cli": "~1.0.1",
+    "karma-coverage-istanbul-reporter": "^1.2.1",
+    "karma-jasmine": "~1.1.0",
+    "karma-jasmine-html-reporter": "^0.2.2",
+    "protractor": "~5.1.2",
+    "ts-node": "~3.2.0",
+    "tslint": "~5.9.1",
+    "typescript": "~2.5.3"
+  }
+}
