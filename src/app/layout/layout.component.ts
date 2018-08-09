@@ -10,8 +10,6 @@ import { MenuOptions, FcnavmenuComponent, Fcmenu } from 'fccomponent/fcnav/fcnav
 import { FcTaboptions, FcnavtabComponent } from 'fccomponent/fcnav/fcnavtab.component';
 import 'rxjs/add/operator/filter';
 import { NzModalService } from 'ng-zorro-antd';
-import { ResetpwddialogComponent } from '../system/components/core/dialog/resetpwddialog.component';
-import { SysuserService, Sysuser } from '../system/services/sysuser.service';
 @Component({
   selector: 'layout',
   templateUrl: './layout.component.html',
@@ -28,13 +26,13 @@ import { SysuserService, Sysuser } from '../system/services/sysuser.service';
   }
   :host ::ng-deep .content-main{
     width: 100%;
-    height:100%;
+    height:96%;
     padding: 5px;
     overflow-x: hidden;
     overflow-y: auto;
     box-sizing: border-box;
-    background-color: #EEF7FC;
-    border-top: 5px solid #ececec;
+    border-top: 5px solid #F0F2F5;
+    background-color:#fff;
   }
   :host ::ng-deep router-outlet + * {
     width: 100%;
@@ -48,10 +46,10 @@ import { SysuserService, Sysuser } from '../system/services/sysuser.service';
     position: absolute;
   }
   .nav-tab{
-    width:calc(100% - 5px);
+    width:100%;
     position:absolute;
-    top:5px;
-    left:5px;
+    top:0px;
+    left:0px;
     background-color:#ffffff;
     height:42px;
   }
@@ -78,6 +76,43 @@ import { SysuserService, Sysuser } from '../system/services/sysuser.service';
   }
   :host ::ng-deep .logo .icon-logo{
     font-size:22px!important;
+  }
+  :host ::ng-deep .sys-navbar .fc-navbar{
+    background-color:#001529!important;
+  }
+  :host ::ng-deep .sys-content-wrap>div>.fc-content2 {
+    padding: 0px;
+  }
+  :host ::ng-deep .sys-content-wrap .content-main{
+    padding: 0px 5px 20px;
+    border-top: 0;
+    height:calc(100% - 65px);
+    background-color:#F0F2F5;
+  }
+  :host ::ng-deep .sys-nav-tabmain .ant-tabs-bar {
+      background-color: #ffffff;
+      margin-bottom:0;
+      border-bottom:0;
+  }
+  :host ::ng-deep .sys-nav-tabsub .ant-tabs-bar {
+      border-bottom:0;
+      margin-bottom: 0px;
+  }
+  :host ::ng-deep .sys-nav-tabsub .ant-tabs-ink-bar{
+    height:0;
+  }
+  :host ::ng-deep .sys-content-wrap .fc-navtab{
+    border-bottom:0;
+  }
+  :host ::ng-deep .sys-content-wrap .sys-nav-tabmain .ant-tabs-nav-scroll,
+  :host ::ng-deep .sys-content-wrap .sys-nav-tabsub .ant-tabs-nav-scroll{
+    text-align:center;
+  }
+  :host ::ng-deep .sys-content-wrap .sys-nav-tabmain .ant-tabs-tab,
+  :host ::ng-deep .sys-content-wrap .sys-nav-tabsub .ant-tabs-tab{
+    padding-left:5px;
+    padding-right:5px;
+    margin-right:15px;
   }
   `]
 })
@@ -107,8 +142,13 @@ export class LayoutComponent implements OnInit {
   selectMenu = {};
   // 当前所有菜单
   _menus: any = [];
+  //子菜单
+  _childMenus: any = [];
   //布局比例
   _layoutSpans: string = "2,9";
+  //显示模式
+  displayMode: string;
+  _displayMode: string;
   constructor(private _router: Router,
     private _providers: ProvidersService,
     private mainService: LayoutService,
@@ -178,16 +218,27 @@ export class LayoutComponent implements OnInit {
       });
   }
   ngOnInit() {
-    this.fcnavtab.fcTabs = [];
-    this.fcnavtab.fcSelectedIndex = 0;
+    //如果是产品是tab的显示模式,默认选中第一个导航
+    let productObj = this._providers.productService.mainObj;
+    if (undefined !== productObj && null !== productObj && '' !== productObj) {
+      if (productObj.DISPLAYMODE === 'TAB') {
+        if (this._menus && this._menus.length !== 0) {
+          this.selectedtabmain(this._menus[0]);
+        }
+      }
+    }
     this.getMessage();
-    //把弹出确认框变量存入到服务里
-    MessageService.confirmModal = this.confirmmodal;
-    if (this.fcnavtab.fcTabs.length === 0) {
-      this.fcnavtab.fcTabs.push({
-        id: '0', index: 0, enabled: true, name: '首页', close: false, icon: 'fc-icon-home', refresh: 'Y', content:
-          { ID: '0', MENUID: 'HOME', ROUTER: 'home', PID: environment.pid, MENUTYPE: 'INURL' }
-      });
+    if (this.fcnavtab) {
+      this.fcnavtab.fcTabs = [];
+      this.fcnavtab.fcSelectedIndex = 0;
+      //把弹出确认框变量存入到服务里
+      MessageService.confirmModal = this.confirmmodal;
+      if (this.fcnavtab.fcTabs.length === 0) {
+        this.fcnavtab.fcTabs.push({
+          id: '0', index: 0, enabled: true, name: '首页', close: false, icon: 'fc-icon-home', refresh: 'Y', content:
+            { ID: '0', MENUID: 'HOME', ROUTER: 'home', PID: environment.pid, MENUTYPE: 'INURL' }
+        });
+      }
     }
   }
   getMessage() {
@@ -210,17 +261,31 @@ export class LayoutComponent implements OnInit {
       }
     });
   }
+
+
   /**
    * 导航栏事件
    * @param event
    */
   navbarEvent(event: FCEVENT) {
     switch (event.eventName) {
-      case 'toggle':
+      case 'toggle'://展开收起消息
         this._navbarStatus = event.param;
         break;
-      case 'selectDropdown':
-      case 'selectMenu':
+      case 'selectDropdown'://下拉菜单
+      case 'selectMenu'://下拉菜单
+        let obj: any = this._providers.productService.mainObj;
+        if (undefined !== obj && '' !== obj && null !== obj) {
+          this._displayMode = obj.DISPLAYMODE;
+          // 切换布局 有选项卡模式和左侧菜单模式
+          if (this._displayMode === 'TAB') {
+            this.displayMode = 'TAB';
+            this._layoutSpans = "0,1";
+          } else if (this._displayMode === 'MENU') {
+            this.displayMode = 'MENU';
+            this._layoutSpans = "2,9";
+          }
+        }
         this._menus = event.param.P_CHILDMENUS;
         let menu = this._menus[0];
         if (menu.HASCHILD === 'Y') {
@@ -245,15 +310,37 @@ export class LayoutComponent implements OnInit {
           // 清除菜单缓存
           this._providers.menuService.removeMenus();
           // 清除tab页面
-          this.fcnavtab.fcTabs = [];
-          this.fcnavtab.fcSelectedIndex = undefined;
+          if (this._displayMode === 'MENU') {
+            this.fcnavtab.fcTabs = [];
+            this.fcnavtab.fcSelectedIndex = undefined;
+          }
           this._router.navigate(['/signin']);
         })
         break;
       case 'editUser'://修改密码
-        this.mainService.navToByMenuId(this._router, 'sysprofileList');
+        this._router.navigate(["/" + environment.pid.toLocaleLowerCase() + "/sysprofileList"]);
         break;
     }
+  }
+  /**
+   * 导航父级选项卡跳转路由
+   * @param menu 
+   */
+  selectedtabmain(menu: any) {
+    this._router.navigate(["/" + environment.pid.toLocaleLowerCase() + "/" + menu.ROUTER]);
+    if (menu.P_CHILDMENUS && menu.P_CHILDMENUS.length !== 0) {
+      this._childMenus = menu.P_CHILDMENUS;
+      this.selectedtabsub(this._childMenus[0]);
+    } else {
+      this._childMenus.length = 0;
+    }
+  }
+  /**
+   * 导航子级选项卡跳转路由
+   * @param menu 
+   */
+  selectedtabsub(menu: any) {
+    this._router.navigate(["/" + environment.pid.toLocaleLowerCase() + "/" + menu.ROUTER], { queryParams: { refresh: 'Y' } });
   }
 
 
@@ -263,7 +350,7 @@ export class LayoutComponent implements OnInit {
    */
   navmenuEvent(event: FCEVENT) {
     switch (event.eventName) {
-      case 'toggle':
+      case 'toggle'://展开收起左侧导航
         this._navmenuStatus = event.param;
         if (this._navmenuStatus === "closed") {
           this._layoutSpans = "3,85";
@@ -307,7 +394,8 @@ export class LayoutComponent implements OnInit {
         // 删除缓存
         break;
       case 'click':
-      debugger;
+        //点击一项
+        debugger;
         this.mainService.navMessage(this._router, event.param).subscribe(res => {
           this.getMessage();
         });
@@ -336,5 +424,4 @@ export class LayoutComponent implements OnInit {
   ngOnDestroy(): void {
     this._providers.daoService.ws.close();
   }
-
 }

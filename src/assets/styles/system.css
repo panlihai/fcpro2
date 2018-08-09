@@ -1,0 +1,254 @@
+/* 卡片新增 */
+
+:global .sys-card-pannel .fc-layoutpanel {
+  background-color: #F0F2F5!important;
+}
+
+.sys-card {
+  height: 180px;
+  cursor: pointer;
+  margin-bottom: 10px;
+}
+
+:global .sys-card .ant-card {
+  height: 100%;
+}
+
+.sys-card-pannel-header {
+  position: relative;
+  background-color: #ffffff;
+  margin-bottom: 10px;
+  padding: 10px;
+}
+
+:global .sys-card-pannel-header .sys-card-pannel-title .fc-title {
+  padding-left: 0;
+  margin-left: 0;
+}
+
+.sys-card-pannel-header .sys-card-pannel-smarks {
+  width: 80%;
+}
+
+.sys-card-bg {
+  position: absolute;
+  right: 10px;
+  top: 0;
+  width: auto;
+  height: 60px;
+}
+
+.sys-card-add {
+  text-align: center;
+}
+
+:global .sys-card-add .ant-card {
+  text-align: center;
+  background: #F0F2F5;
+}
+
+:global .sys-card-add .ant-card-bordered {
+  border: 1px dashed #d9d9d9;
+}
+
+.sys-card-add .sys-card-addicon {
+  margin-top: 50px;
+  display: inline-block;
+}
+
+.sys-card-add .sys-card-addtext {
+  margin-top: 50px;
+  display: inline-block;
+  margin-left: 10px;
+  font-size: 16px;
+}
+
+.sys-card-add .sys-card-addtext:hover {
+  color: #009DFF;
+}
+
+.sys-card-fast {
+  width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  display: flex;
+  justify-content: space-between;
+  padding-top: 10px;
+  align-items: center;
+}
+
+.sys-fast-list::after {
+  content: '';
+  display: block;
+  clear: both;
+}
+
+.sys-fast-byword {
+  float: right;
+}
+
+.sys-fast-byword span {
+  padding: 4px 5px;
+  font-size: 12px;
+  background-color: #ffffff;
+  cursor: pointer;
+  position: relative;
+}
+
+.sys-fast-byword span:first-child {
+  border-top-left-radius: 4px;
+  border-bottom-left-radius: 4px;
+}
+
+.sys-fast-byword span:last-child {
+  border-top-right-radius: 3px;
+  border-bottom-right-radius: 3px;
+}
+
+.sys-fast-byword span.active, .sys-fast-byword span:hover {
+  color: #009dff;
+}
+
+.sys-fast-list li {
+  float: left;
+  color: #009DFF;
+  margin-right: 10px;
+}
+
+.sys-fast-select {
+  width: 25%;
+}
+
+/* 卡片内容区 */
+
+.sys-card-btn {
+  text-align: center;
+}
+
+.sys-card-content {
+  display: flex;
+  position: relative;
+}
+
+.sys-card-content .sys-card-help {
+  position: absolute;
+  right: -15px;
+  top: -20px;
+}
+
+.sys-card-text {
+  flex: 1;
+  padding-left: 5px;
+}
+
+.sys-card-content .sys-card-title {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.sys-card-content .sys-card-smarks {
+  margin-top: 15px;
+  height: 70px;
+  overflow: hidden;
+}
+
+.sys-card-mark {
+  width: 30px;
+  height: 30px;
+  line-height: 30px;
+  color: #ffffff;
+  text-align: center;
+  border-radius: 50%;
+  background: #009DFF;
+}
+
+/* 卡片按钮 */
+
+.sys-card-tbl {
+  position: absolute;
+  position: absolute;
+  right: -10px;
+  top: -20px;
+  display: flex;
+  justify-content: flex-start;
+}
+
+.sys-card-tbl-every {
+  margin-right: 10px;
+}
+
+/* 卡片底部 */
+
+.sys-card-footer {
+  width: 100%;
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  display: flex;
+  justify-content: space-between;
+}
+
+/* 表单 */
+
+:global .sys-card-pannel .fc-content .sys-card-pannel-edit {
+  background: #ffffff;
+  padding-bottom: 10px;
+  padding-top: 10px;
+}
+
+:global .sys-card-pannel .fc-content .sys-card-pannel-edit .fc-title {
+  width: 25%!important;
+  text-align: right;
+  padding-right: 20px;
+}
+
+:global .sys-card-pannel .fc-content .sys-card-pannel-edit .fc-layoutcol {
+  padding: 10px 100px;
+  border-bottom: 1px solid #ebedf0;
+}
+
+:global .sys-card-pannel .fc-content .sys-card-pannel-edit .noBottomLine .fc-layoutcol {
+  padding: 0px;
+  border-bottom: none;
+}
+:global .sys-card-pannel .fc-content .sys-card-pannel-edit .notitleLine .fc-layoutcol{
+  border-bottom: none;
+  margin-bottom: -12px;
+}
+:global .sys-card-pannel .ant-input, :global .sys-card-pannel .ant-select-selection, :global .sys-card-pannel .ant-input-number {
+  border-color: #ebedf0!important;
+}
+
+/* 没有查询数据 */
+
+.sys-noresult {
+  height: 60px;
+  margin-bottom: 30px;
+  text-align: center;
+  font-size: 16px;
+}
+
+.sys-noresult .noResult-title {
+  font-size: 16px;
+  font-weight: 600;
+  display: block;
+}
+
+.sys-noresult .noResult-smarks {
+  color: #BDC5D1;
+  display: block;
+}
+
+/* 弹窗整体向上移动*/
+:global .ant-modal-content {
+  position: relative;
+  background-color: #fff;
+  border: 0;
+  border-radius: 4px;
+  background-clip: padding-box;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  top: -34px;
+}

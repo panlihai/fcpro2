@@ -4,7 +4,7 @@ import { TimelineOptions, FclistdataComponent, Fcmenu } from "fccomponent";
 import { FCEVENT } from "fccomponent/fc";
 import { SyshomeService } from "../../services/syshome.service";
 import { NzModalService } from "ng-zorro-antd";
-import {  ColumnApi } from "ag-grid";
+import { ColumnApi } from "ag-grid";
 import { environment } from "../../../../environments/environment";
 import { Sysmenu, ProvidersService } from "fccore";
 import { NavLinkFunctionName, Args_NavLink } from "../../services/sysnavlink.service";
@@ -97,6 +97,7 @@ import { OrderDownlineTreeviewEventParser } from "ngx-treeview";
     :host ::ng-deep .chat-show-wrap .fc-chatbox .fc-chatouter{
       visibility:visible;
       opacity: 1;
+      cursor: move;
     }
     :host ::ng-deep .ant-btn-circle{
       width: 50px;
@@ -217,11 +218,11 @@ import { OrderDownlineTreeviewEventParser } from "ngx-treeview";
 }
 .fc-chattime{
     width:100%;
-    height:50px;
+    height:22px;
     color:#666666;
     font-size:12px;
     text-align: center;
-    line-height: 50px;
+    line-height: 22px;
 }
 .fc-chatleft{
     position: relative;
@@ -353,39 +354,59 @@ import { OrderDownlineTreeviewEventParser } from "ngx-treeview";
   height:110px;
   overflow:auto;
 }
-:host ::ng-deep .templatehome .separated-lefttop .fc-layoutpanel{
+:host ::ng-deep .templatehome .separated-lefttop .fc-layoutpanel,:host ::ng-deep .templatehome .separated-left .fc-layoutpanel,.templatehome .separated-righttop,:host ::ng-deep .templatehome .separated-rightcenter .fc-layoutpanel,:host ::ng-deep .templatehome .separated-left .fc-layoutpanel,.templatehome .separated-leftbottom,:host ::ng-deep .templatehome .separated-right .fc-layoutpanel,:host ::ng-deep .templatehome .separated-rightbottom .fc-layoutpanel,:host ::ng-deep .templatehome .separated-leftrightbottom .fc-layoutpanel {
   background:white;
-  margin: 3px 3px 6px 3px;
   padding:5px;
   border-radius: 2px;
   box-shadow: 0 0 5px #ccc;
   width: auto;
 }
-:host ::ng-deep .templatehome .separated-left .fc-layoutpanel,.templatehome .separated-leftbottom,:host ::ng-deep .templatehome .separated-right .fc-layoutpanel,:host ::ng-deep .templatehome .separated-rightbottom .fc-layoutpanel{
-  background:white;
-  margin: 3px ;
-  padding:5px;
-  border-radius: 2px;
-  box-shadow: 0 0 5px #ccc;
-  width: auto;
+:host ::ng-deep .templatehome .separated-lefttop .fc-layoutpanel,:host ::ng-deep .templatehome .separated-left .fc-layoutpanel,:host ::ng-deep .templatehome .separated-left .fc-layoutpanel,.templatehome .separated-leftbottom{
+  margin: 0px 5px 5px 0px;
 }
-:host ::ng-deep .templatehome .separated-rightbottom .fc-layoutpanel {
-  margin:3px;
+.templatehome .separated-righttop{
+  margin: 0px 0px 5px 0px;
 }
-.templatehome .work-plan {
-  margin-bottom:6px;
- }
- :host ::ng-deep .templatehome .todo-tasks .fc-layoutpanel{
-  margin-bottom:6px;
- }
+:host ::ng-deep .templatehome .separated-rightcenter .fc-layoutpanel{
+  margin-bottom: 5px;
+}
+:host ::ng-deep .templatehome .separated-leftrightbottom .fc-layoutpanel {
+  margin-right: 5px;
+}
+ .seeMore {
+  text-align: center;
+  color: #;
+  color: #5C92FF;
+  height: 30px;
+  line-height: 30px;
+  cursor: pointer;
+}
+.seeMore span:hover{
+  border-bottom: 1px solid #1890FF;
+}
     `
   ]
 })
 export class HomeComponent implements OnInit {
+  simpleDrop: any = null;
+  //初始化分页大小
+  pagesize: number = 2;
+  //初始化每一页几个数据
+  pagenum: number = 1;
+  //当前用户
+  currentUser: any;
+  //聊天消息
+  contactMessages: any[] = [];
+  //联系人姓名
+  contactname: any;
+  //通讯录列表
+  contacts: any[];
+  //输入框内准备发送的消息
+  sendMassage: any;
   navLinkListCondition: any;
   //消息公告
   notifys: any;
-  waits:any;
+  waits: any;
   links: any;
   @ViewChild("navLink_listdata") navLink_listdata: FclistdataComponent;
   currentModal_navLink: any;
@@ -477,8 +498,10 @@ export class HomeComponent implements OnInit {
     public activedRoute: ActivatedRoute,
     private _router: Router,
     private nzModal: NzModalService
-  ) { }
+  ) {}
   ngOnInit(): void {
+    this.pagenum = 1;
+    this.currentUser = this.mainService.getUserinfo().USERCODE;
     this.mainService.providers.appService
       .findWithQuery("SYSVERSION", { PAGENUM: 1, PAGESIZE: 6, ODER: "TS DESC" })
       .subscribe(result => {
@@ -525,6 +548,15 @@ export class HomeComponent implements OnInit {
       }
     })
     this.initNavLink();
+    // 查询系统通讯录所有元数据
+    this.mainService.providers.appService
+      .findWithQuery("SYSCONTACT", {})
+      .subscribe(result => {
+        if (result.CODE === "0") {
+          this.contacts = result.DATA;
+        }
+      });
+
   }
 
   /**
@@ -532,11 +564,11 @@ export class HomeComponent implements OnInit {
    *动态加载快速导航标签数据;
    */
   initNavLink() {
-    this.mainService.NavLinkFunction(NavLinkFunctionName.getNavLinks).subscribe(res => {
+    this.mainService.getNavLinks().subscribe(res => {
       if (res.CODE === "0") this.navLinks = res.DATA;
       let args: Args_NavLink = { navlinks: this.navLinks }
-      this.navLinkListCondition = this.mainService.NavLinkFunction(NavLinkFunctionName.rebuildList_NavLink, args);
-      this.mainService.NavLinkFunction(NavLinkFunctionName.refreshNavLink, args);
+      this.navLinkListCondition = this.mainService.rebuildList_NavLink(args);
+      this.mainService.refreshNavLink(args);
     });
   }
   /** YM
@@ -544,7 +576,7 @@ export class HomeComponent implements OnInit {
    */
   addNavLinkTag(contentTpl, footerTpl) {
     let args: Args_NavLink = { navlinks: this.navLinks, contentTpl: contentTpl, footerTpl: footerTpl, listdata: this.navLink_listdata }
-    if (this.mainService.NavLinkFunction(NavLinkFunctionName.addNavLinkTag, args)) {
+    if (this.mainService.addNavLinkTag(args)) {
       setTimeout(() => {
         let column: ColumnApi = this.navLink_listdata._gridColumnApi;
         if (column) column.autoSizeAllColumns();
@@ -557,7 +589,7 @@ export class HomeComponent implements OnInit {
   handleAddNavLink_ok(ev: any) {
     let args: Args_NavLink = { navlinks: this.navLinks, listdata: this.navLink_listdata, condition: this.navLinkListCondition }
     if (
-      this.mainService.NavLinkFunction(NavLinkFunctionName.handleAddNavLink_ok, args)
+      this.mainService.handleAddNavLink_ok(args)
     ) {
       setTimeout(() => {
         this.initNavLink();
@@ -568,7 +600,7 @@ export class HomeComponent implements OnInit {
    * 处理新增快速导航标签——取消
    */
   handleAddNavLink_cancel(ev: any) {
-    this.mainService.NavLinkFunction(NavLinkFunctionName.handleAddNavLink_cancel)
+    this.mainService.handleAddNavLink_cancel()
   }
   /** YM
    * 快速导航标签事件
@@ -578,22 +610,21 @@ export class HomeComponent implements OnInit {
       case "close":
         break;
       case "beforeClose":
-        event.stopPropagation();
-        event.preventDefault();
         let args: Args_NavLink = { link: link }
-        this.mainService.NavLinkFunction(NavLinkFunctionName.deleteSubject).subscribe(res => {
+        this.mainService.deleteSubject().subscribe(res => {
           if (res) this.initNavLink();
         });
-        this.mainService.NavLinkFunction(NavLinkFunctionName.navLinkBeforeClose, args);
+        this.mainService.navLinkBeforeClose(args);
         break;
       case "click":
-        event.stopPropagation();
-        event.preventDefault();
         this.mainService.navToByMenuId(this.router, link.ROUTER);
         break;
       default:
         break;
     }
+  }
+  navTo(url: string) {
+    this.mainService.navToByMenuId(this.router, url);
   }
   /** YM
    * 新增快速导航标签弹窗列表事件
@@ -640,21 +671,17 @@ export class HomeComponent implements OnInit {
         break;
     }
   }
-
-  navTo(url: string) {
-    this.mainService.layoutService.navToByMenuId(this.router, url);
-  }
   /**
   * 消息公告点击跳转路由事件
   * @param event 
   */
-  announcementEvent(id,catagory,publishuser) {
-    if(publishuser!== this.mainService.providers.userService.getUserInfo().USERCODE){
+  announcementEvent(id, catagory, publishuser) {
+    if (publishuser !== this.mainService.providers.userService.getUserInfo().USERCODE) {
       let obj: any = {
         TS: this.mainService.announcementtime(),
         SORT: this.mainService.announcementtime(),
         POSTTIME: this.mainService.announcementtime(),
-        CONTENT: "消息公告"+id+"进行回执",
+        CONTENT: "消息公告" + id + "进行回执",
         ISREAD: "N",
         ID: id,
         TYPE: "",
@@ -663,25 +690,25 @@ export class HomeComponent implements OnInit {
         POSTUSERID: this.mainService.announcementPOSTUSER()
         // POSTUSERID: this.mainService.providers.userService.getUserInfo().USERCODE
       };
-      if(catagory==="error"){
+      if (catagory === "error") {
         obj.TYPE = "danger";
       }
-      if(catagory==="processing"){
+      if (catagory === "processing") {
         obj.TYPE = "normal"
       }
-      if(catagory==="warning"){
+      if (catagory === "warning") {
         obj.TYPE = "waring"
-      }  
+      }
       this.mainService.announcementsave(obj)
-    }  
+    }
     this.mainService.sysannouncementrouter(this._router, id);
   }
   // 历史待办模块功能
-  assignmentHistory(id){ 
+  assignmentHistory(id) {
     this.mainService.sysassignmentrouter(this._router, id);
   }
   // 待办任务列表点击
-  assignmentEvent(wait){
+  assignmentEvent(wait) {
 
     this.mainService.assignmentMessage(this._router, wait);
   }
@@ -714,7 +741,36 @@ export class HomeComponent implements OnInit {
   /**
    * 发送聊天记录
    */
-  sendChat() { }
+  sendChat() {
+    //获取消息，合成消息体
+    let time;
+    let obj = [{
+      CONTENT: this.sendMassage,
+      POSTUSERID: this.currentUser,
+      NOTIFICATIONUSERID: this.contactname,
+      POSTTIME: this.mainService.providers.commonService.getTimestamp(),
+      TS:this.mainService.providers.commonService.getTimestamp(),
+      ISSEND:'N',
+      ISREAD:'N',
+      SORT:this.mainService.providers.commonService.getTimestamp(),
+      TITLE:'来自联系人的消息',
+      TYPE:'normal'
+    }];
+    //如果是当天时间，不显示年月日
+    console.log(new Date(obj[0].TS*1000).toLocaleDateString());
+    if (new Date(obj[0].TS*1000).toLocaleDateString() === new Date().toLocaleDateString()) {
+      time = this.mainService.providers.commonService.timestampFormat(obj[0].TS*1000, 'hh:mm:ss') + "";
+    } else {
+      //如果不是当天，年月日时分秒
+      time = this.mainService.providers.commonService.timestampFormat(obj[0].TS*1000, 'yyyy-MM-dd hh:mm:ss') + "";
+    }
+    obj[0].TS=time; 
+    //往集合顶部插入一条消息记录，并且清空输入框
+    this.contactMessages = obj.concat(this.contactMessages);
+    this.sendMassage = '';
+    //将该条数据保存到数据库里面
+    this.mainService.saveMessage_chat(obj);
+  }
   /**
    * 关闭聊天面板
    */
@@ -722,9 +778,55 @@ export class HomeComponent implements OnInit {
     this.showchat = false;
   }
   /**
-   * 图表事件
-   */
-  chatbarEvent() {
-
+  * 点击消息按钮出现聊天面板
+  */
+  showcontact(userid) {
+    this.pagenum = 1;
+    this.showchat = true;
+    this.contactname = userid;
+    this.contactMessages = [];
+    //首次加载聊天内容
+    this.getChatmessage(userid);
+    //远程消息接收
+    this.mainService.providers.daoService.connectionWs(this.contactname).subscribe(data => {
+      if (data.length !== 0) {
+        this.contactMessages = this.contactMessages.concat(JSON.parse(data));
+      }
+    });
   }
+  /**
+   *  查询指定联系人的聊天内容 
+   */
+  getChatmessage(userid) {
+    this.mainService.getChatcontent(userid, this.pagesize, this.pagenum)
+      .subscribe(result => {
+        if (result.CODE === "0") {
+          //时间的显示
+           result.DATA.forEach(element => {
+            if (element.TS !== null && element.TS !== '') {
+              //如果是当天时间，不显示年月日
+              if (new Date(element.POSTTIME*1000).toLocaleDateString() === new Date().toLocaleDateString()) {
+                element.TS = this.mainService.providers.commonService.timestampFormat(Number.parseInt(element.POSTTIME) * 1000, 'hh:mm:ss') + "";
+              } else {
+                //如果不是当天，年月日时分秒
+                element.TS = this.mainService.providers.commonService.timestampFormat(Number.parseInt(element.POSTTIME) * 1000, 'yyyy-MM-dd hh:mm:ss') + "";
+              }
+            }
+          })
+          this.contactMessages = result.DATA.concat(this.contactMessages);
+        }
+      });
+  }
+  /* 点击查看更多 */
+  seeMore() {
+    this.pagenum++;
+    //调用获取聊天消息
+    this.getChatmessage(this.contactname);
+  }
+// }
+//    * 图表事件
+//    */
+//   chatbarEvent() {
+
+//   }
 }
