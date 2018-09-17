@@ -1,26 +1,34 @@
 import { Routes } from '@angular/router';
-import { AppComponent } from './app.component';
-import { LayoutComponent } from './layout/layout.component';
-import { UserService } from 'fccore';
-import { SigninComponent } from './system/components/signin/signin.component';
-import { SignupComponent } from './system/components/signup/signup.component';
-import { MainComponent } from './system/components/main/main.component';
-export const AppRouters: Routes = [
+import { UserService } from 'fccore2';
+import { SigninComponent } from './components/signin/signin.component';
+import { ErrorComponent } from './components/error/error.component';
+import { ForgotComponent } from './components/forgot/forgot.component';
+import { LockscreenComponent } from './components/lockscreen/lockscreen.component'; 
+import { LayoutComponent } from './components/layout/layout.component';
+export const AppRoutes: Routes = [
     {
         path: '',
         component: LayoutComponent,
         canActivate: [UserService],
         children: [
             {
-                path: 'system',//系统
-                loadChildren: './system/index.module#SystemModule'
+                path: 'error',//错误
+                component: ErrorComponent
+            },
+            {
+                path: '',//例子
+                loadChildren: '../feature/fcfa/index.module#FcfaModule'
             }
         ]
-    }, {
-        path: 'signin',//登录
+    }
+    , {
+        path: 'signin',
         component: SigninComponent
     }, {
-        path: 'signup',//注册
-        component: SignupComponent
+        path: 'forgot',//忘记密码
+        component: ForgotComponent,
+    }, {
+        path: 'lockscreen',//锁屏
+        component: LockscreenComponent
     }
 ];

@@ -1,7 +1,11 @@
 import { Component } from '@angular/core';
-import { NzMessageService } from 'ng-zorro-antd';
+import { SystemService } from './services/services.services';
 @Component({
   selector: 'app-root',
-  template: '<router-outlet></router-outlet>'
+  template: `<router-outlet ></router-outlet>`
 })
-export class AppComponent {}
+export class AppComponent {
+  constructor(public systemService: SystemService) {
+
+  }
+}

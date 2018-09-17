@@ -1,6 +1,6 @@
 import { AppPage } from './app.po';
 
-describe('fcexample App', () => {
+describe('starter App', () => {
   let page: AppPage;
 
   beforeEach(() => {
