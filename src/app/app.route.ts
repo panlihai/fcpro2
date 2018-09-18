@@ -16,7 +16,7 @@ export const AppRoutes: Routes = [
                 component: ErrorComponent
             },
             {
-                path: '',//例子
+                path: 'fcfa',//例子
                 loadChildren: '../feature/fcfa/index.module#FcfaModule'
             }
         ]
